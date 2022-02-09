@@ -1,0 +1,22 @@
+#Eclipse
+/build/
+.settings
+.classpath
+.project
+
+#maven
+target
+
+#Intellij
+/out/
+.idea
+*.iml
+
+#Spring
+.springBeans
+
+#ignore properties file
+*.properties
+
+#Tern plugin
+.tern-project

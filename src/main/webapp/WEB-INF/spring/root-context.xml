@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- DB / MYBatis -->
+
+	<!-- config파일 자동 로드 -->
+	<context:property-placeholder location="/config/*.properties" />
+
+	<!--  DB -->
+	<bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${DB.driverClassName}"/>
+		<property name="url" value="${DB.url}"/>
+		<property name="username" value="${DB.username}"/>
+		<property name="password" value="${DB.password}"/>
+	</bean>
+	
+	<!-- MyBatis -->
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="datasource"/>
+		<property name="mapperLocations" value="classpath:com/java/**/**/*.xml"/>
+	</bean>
+	
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactoryBean"/>
+	</bean>
+	
+	<!-- Transaction -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="datasource"/>
+	</bean>
+	
+	<!-- Transaction aop -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Exeption"/>
+		</tx:attributes>
+	</tx:advice> 
+	
+	<aop:config>
+		<aop:pointcut expression="within(com.java..*)" id="publicT"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="publicT"/>
+	</aop:config>
+</beans>
